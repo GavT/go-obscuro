@@ -62,6 +62,8 @@ type Node struct {
 
 	stats host.StatsCollector
 
+	blockProvider host.BlockProvider
+
 	// control the host lifecycle
 	exitNodeCh            chan bool
 	stopNodeInterrupt     *int32
@@ -518,7 +520,7 @@ func (a *Node) processBlocks(blocks []common.EncodedBlock, interrupt *int32) err
 	return nil
 }
 
-// Looks at each transaction in the block, and kicks off special handling for the transaction if needed.
+// Looks at each transaction in the block, and updates host data caches if required
 func (a *Node) processBlock(b *types.Block) {
 	for _, tx := range b.Transactions() {
 		t := a.mgmtContractLib.DecodeTx(tx)
@@ -526,6 +528,7 @@ func (a *Node) processBlock(b *types.Block) {
 			continue
 		}
 
+		// node received a secret response, we should add them to our p2p connection pool
 		if scrtRespTx, ok := t.(*ethadapter.L1RespondSecretTx); ok {
 			err := a.processSharedSecretResponse(scrtRespTx)
 			if err != nil {
@@ -652,13 +655,14 @@ func (a *Node) requestSecret() error {
 	l1tx := &ethadapter.L1RequestSecretTx{
 		Attestation: encodedAttestation,
 	}
+	l1Height := a.ethClient.FetchHeadBlock().Number()
 	requestSecretTx := a.mgmtContractLib.CreateRequestSecret(l1tx, a.ethWallet.GetNonceAndIncrement())
 	err = a.signAndBroadcastTx(requestSecretTx, l1TxTriesSecret)
 	if err != nil {
 		return err
 	}
 
-	err = a.awaitSecret()
+	err = a.awaitSecret(l1Height)
 	if err != nil {
 		a.logger.Crit("could not receive the secret", log.ErrKey, err)
 	}
@@ -924,9 +928,10 @@ func (a *Node) bootstrapNode() types.Block {
 	return *currentBlock
 }
 
-func (a *Node) awaitSecret() error {
+func (a *Node) awaitSecret(fromHeight *big.Int) error {
 	// start listening for l1 blocks that contain the response to the request
 	listener, subs := a.ethClient.BlockListener()
+	a.blockProvider.StartStreamingFrom(fromHeight.Uint64(), nil)
 
 	for {
 		select {

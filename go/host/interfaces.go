@@ -31,6 +31,14 @@ type Host interface {
 	Stop()
 }
 
+type BlockProvider interface {
+	Stream() <-chan *types.Block
+	Err() <-chan error
+	StartStreamingFrom(height uint64, latestHashes []*gethcommon.Hash)
+	Stop()
+	IsLive(hash gethcommon.Hash) bool
+}
+
 // MockHost extends Host with additional methods that are only used for integration testing.
 // todo - remove this interface
 type MockHost interface {
