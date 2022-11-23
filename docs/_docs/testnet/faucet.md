@@ -11,14 +11,14 @@ Using the steps below you will request testnet OBX tokens from the faucet availa
 
 ## Requesting Testnet OBX Tokens
 1. Make a note of your wallet address or copy it to your clipboard.
-1. Open the [_faucet-requests_ channel](https://discord.gg/5qyj3qraaH) on Obscuro Discord.
-1. Request OBX using the `/faucet` command. The faucet will credit 100,000 OBX by default:
+2. Open the [_faucet-requests_ channel](https://discord.gg/5qyj3qraaH) on Obscuro Discord.
+3. Request OBX using the `/faucet` command. The faucet will credit 100,000 OBX by default:
 
 ![faucet command](../../assets/images/faucet-cmd.png)
-1. Provide your wallet address and hit Enter. The faucet will acknowledge your request:
+4. Provide your wallet address and hit Enter. The faucet will acknowledge your request:
 
 ![faucet ack](../../assets/images/faucet-ack.png)
-1. After a short period of time the faucet will confirm the Testnet OBX tokens have been credited to your wallet:
+5. After a short period of time the faucet will confirm the Testnet OBX tokens have been credited to your wallet:
 
 ![faucet complete](../../assets/images/faucet-done.png)
 
